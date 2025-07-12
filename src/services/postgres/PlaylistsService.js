@@ -53,6 +53,17 @@ class PlaylistsService {
   }
 
   async addSongToPlaylist(playlistId, songId) {
+    const songQuery = {
+      text: 'SELECT id FROM songs WHERE id = $1',
+      values: [songId],
+    };
+
+    const songResult = await this._pool.query(songQuery);
+
+    if (!songResult.rows.length) {
+      throw new NotFoundError('Lagu tidak ditemukan');
+    }
+
     const id = `ps-${nanoid(16)}`;
     const query = {
       text: 'INSERT INTO playlist_songs VALUES($1, $2, $3) RETURNING id',
